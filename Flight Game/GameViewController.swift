@@ -5,8 +5,8 @@
 //  Created by Denis Bystruev on 11.03.2021.
 //
 
-import UIKit
-import QuartzCore
+//import UIKit
+//import QuartzCore
 import SceneKit
 
 class GameViewController: UIViewController {
@@ -23,7 +23,7 @@ class GameViewController: UIViewController {
         scene.rootNode.addChildNode(cameraNode)
         
         // place the camera
-        cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
+//        cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
         
         // create and add a light to the scene
         let lightNode = SCNNode()
@@ -42,8 +42,18 @@ class GameViewController: UIViewController {
         // retrieve the ship node
         let ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
         
+        // position the ship
+        let x = 25
+        let y = 25
+        let z = -100
+        ship.position = SCNVector3(x, y, z)
+        
+        // set ship orientation
+        ship.look(at: SCNVector3(2 * x, 2 * y, 2 * z))
+        
         // animate the 3d object
-        ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
+//        ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
+        ship.runAction(.move(to: SCNVector3(), duration: 5))
         
         // retrieve the SCNView
         let scnView = self.view as! SCNView
