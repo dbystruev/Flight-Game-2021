@@ -14,10 +14,14 @@ class GameViewController: UIViewController {
     // MARK: - Outlets
     let button = UIButton()
     
+    // MARK: - Properties
+    var duration: TimeInterval = 5
+    var ship = SCNNode()
+    
     // MARK: - Methods
     func addShip(to scene: SCNScene) {
         // retrieve the ship node
-        let ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
+        ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
         
         // correct ship rotation
         ship.rotation = SCNVector4(0, 0, 0, 1)
@@ -35,8 +39,8 @@ class GameViewController: UIViewController {
         ship.look(at: SCNVector3(2 * x, 2 * y, 2 * z))
         
         // animate the 3d object
-        ship.runAction(.move(to: SCNVector3(), duration: 5)) {
-            ship.isHidden = true
+        ship.runAction(.move(to: SCNVector3(), duration: duration)) {
+            self.ship.isHidden = true
             DispatchQueue.main.async {
                 self.button.isHidden = false
             }
@@ -71,6 +75,9 @@ class GameViewController: UIViewController {
     
     @objc func buttonTapped() {
         button.isHidden = true
+        
+        // Restore duration
+        duration = 5
         
         // retrieve the SCNView
         let scnView = view as! SCNView
@@ -117,10 +124,10 @@ class GameViewController: UIViewController {
         scnView.scene = scene
         
         // allows the user to manipulate the camera
-        scnView.allowsCameraControl = true
+        scnView.allowsCameraControl = false
         
         // show statistics such as fps and timing information
-        scnView.showsStatistics = true
+        scnView.showsStatistics = false
         
         // configure the view
         scnView.backgroundColor = UIColor.black
@@ -133,8 +140,7 @@ class GameViewController: UIViewController {
         configureUI()
     }
     
-    @objc
-    func handleTap(_ gestureRecognize: UIGestureRecognizer) {
+    @objc func handleTap(_ gestureRecognize: UIGestureRecognizer) {
         // retrieve the SCNView
         let scnView = self.view as! SCNView
         
@@ -143,6 +149,9 @@ class GameViewController: UIViewController {
         let hitResults = scnView.hitTest(p, options: [:])
         // check that we clicked on at least one object
         if hitResults.count > 0 {
+            // Remove animation from the ship
+            ship.removeAllActions()
+            
             // retrieved the first clicked object
             let result = hitResults[0]
             
@@ -151,16 +160,13 @@ class GameViewController: UIViewController {
             
             // highlight it
             SCNTransaction.begin()
-            SCNTransaction.animationDuration = 0.5
+            SCNTransaction.animationDuration = 0.25
             
             // on completion - unhighlight
             SCNTransaction.completionBlock = {
-                SCNTransaction.begin()
-                SCNTransaction.animationDuration = 0.5
-                
                 material.emission.contents = UIColor.black
-                
-                SCNTransaction.commit()
+                self.addShip(to: scnView.scene!)
+                self.duration *= 0.9
             }
             
             material.emission.contents = UIColor.red
