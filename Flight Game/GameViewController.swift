@@ -10,6 +10,30 @@
 import SceneKit
 
 class GameViewController: UIViewController {
+    
+    let button = UIButton()
+    
+    /// Configures user interface
+    func configureUI() {
+        // Configure button position
+        let height: CGFloat = 100
+        let width = CGFloat(200)
+        let x = view.frame.midX - width / 2
+        let y = view.frame.midY - height / 2
+        button.frame = CGRect(x: x, y: y, width: width, height: height)
+        
+        // Configure button properties
+        button.backgroundColor = .red
+        button.layer.cornerRadius = 15
+        button.setTitle("New Game", for: .normal)
+        button.setTitleColor(.yellow, for: .normal)
+        button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 32)
+        
+        // Hide button
+        button.isHidden = true
+        
+        view.addSubview(button)
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,7 +77,13 @@ class GameViewController: UIViewController {
         
         // animate the 3d object
 //        ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
-        ship.runAction(.move(to: SCNVector3(), duration: 5))
+        ship.runAction(.move(to: SCNVector3(), duration: 5)) {
+            ship.removeFromParentNode()
+            DispatchQueue.main.async {
+                self.button.isHidden = false
+            }
+            print(#line, #function, "GAME OVER")
+        }
         
         // retrieve the SCNView
         let scnView = self.view as! SCNView
@@ -73,6 +103,9 @@ class GameViewController: UIViewController {
         // add a tap gesture recognizer
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         scnView.addGestureRecognizer(tapGesture)
+        
+        // Configure user interface
+        configureUI()
     }
     
     @objc
